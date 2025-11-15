@@ -1,23 +1,27 @@
 package me.androidbox.stockmarket
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
+import co.touchlab.kermit.Logger
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import me.androidbox.stockmarket.data.network_client.HttpKtorClient
+import me.androidbox.stockmarket.data.remote_data_source.StockRemoteDataSourceImp
+import me.androidbox.stockmarket.data.repository.StockRepositoryImp
+import me.androidbox.stockmarket.domain.CheckResult
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import stockmarket.composeapp.generated.resources.Res
-import stockmarket.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
@@ -31,17 +35,24 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+            val stockRemoteDataSourceImp = StockRemoteDataSourceImp( HttpKtorClient().build())
+            val stockRepositoryImp = StockRepositoryImp(stockRemoteDataSourceImp)
+
+            runBlocking {
+                val stockSymbols = stockRepositoryImp.fetchStockQuote("AAPL")
+
+                when(stockSymbols) {
+                    is CheckResult.Failure -> {
+                        Logger.d {
+                            "${stockSymbols.responseError?.message}"
+                        }
+                    }
+                    is CheckResult.Success -> {
+                        Logger.d {
+                            "${stockSymbols.data}"
+                        }
+
+                    }
                 }
             }
         }

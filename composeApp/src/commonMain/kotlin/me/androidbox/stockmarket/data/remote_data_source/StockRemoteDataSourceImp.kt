@@ -15,16 +15,21 @@ import me.androidbox.stockmarket.domain.DataError
 class StockRemoteDataSourceImp(
     private val httpClient: HttpClient
 ) {
+
+    // https://finnhub.io/api/v1/stock/symbol?exchange=US&token=d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0
+    // https://finnhub.io/api/v1/stock/symbol?exchange=US&token=d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0
+
     suspend fun fetchStockSymbols(): CheckResult<SymbolDto, DataError.Network, ErrorDto> {
         val safeResult = safeApiRequest<SymbolDto> {
             val response = httpClient
                 .get(Routes.SYMBOL) {
                     url {
                         this.parameters.append("exchange", "US")
+                        this.parameters.append("token", "d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0") // TODO add to local.properties
                     }
-                    headers {
+                /*    headers {
                         this.append("X-Finnhub-Token", "d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0") // TODO add to local.properties
-                    }
+                    }*/
                 }
 
             response
@@ -33,16 +38,17 @@ class StockRemoteDataSourceImp(
         return safeResult
     }
 
-    suspend fun fetchQuote(symbol: String): CheckResult<QuoteDto, DataError.Network, ErrorDto> {
+    suspend fun fetchStockQuote(symbol: String): CheckResult<QuoteDto, DataError.Network, ErrorDto> {
         val safeResult = safeApiRequest<QuoteDto> {
             val response = httpClient
                 .get(Routes.QUOTE) {
                     url {
                         this.parameters.append("symbol", symbol)
+                        this.parameters.append("token", "d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0") // TODO add to local.properties
                     }
-                    headers {
-                        this.append("X-Finnhub-Token", "d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0") // TODO add to local.properties
-                    }
+                 /*   headers {
+                        this.append("token", "d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0") // TODO add to local.properties
+                    }*/
                 }
             response
         }

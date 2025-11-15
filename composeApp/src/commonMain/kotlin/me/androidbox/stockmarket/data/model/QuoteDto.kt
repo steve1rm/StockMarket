@@ -13,7 +13,7 @@ data class QuoteDto(
     val percentChange: Float,
     @SerialName("h")
     val highPrice: Float,
-    @SerialName("i")
+    @SerialName("l")
     val lowPrice: Float,
     @SerialName("o")
     val openPrice: Float,
