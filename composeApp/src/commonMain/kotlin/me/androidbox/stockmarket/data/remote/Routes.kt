@@ -10,4 +10,5 @@ object Routes {
     private const val BASE_URL = "https://finnhub.io/api/v1"
     const val SYMBOL = "$BASE_URL/stock/symbol"
     const val QUOTE = "$BASE_URL/quote/"
+    const val SEARCH = "$BASE_URL/search"
 }

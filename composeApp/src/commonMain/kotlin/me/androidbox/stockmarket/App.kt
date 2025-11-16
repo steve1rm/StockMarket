@@ -38,8 +38,10 @@ fun App() {
             val stockRemoteDataSourceImp = StockRemoteDataSourceImp( HttpKtorClient().build())
             val stockRepositoryImp = StockRepositoryImp(stockRemoteDataSourceImp)
 
-            runBlocking {
-                val stockSymbols = stockRepositoryImp.fetchStockQuote("AAPL")
+            runBlocking(Dispatchers.IO) {
+
+              //  val stockSymbols = stockRepositoryImp.fetchStockQuote("AAPL")
+                val stockSymbols = stockRepositoryImp.searchStock()
 
                 when(stockSymbols) {
                     is CheckResult.Failure -> {
