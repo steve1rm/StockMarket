@@ -1,5 +1,6 @@
 package me.androidbox.stockmarket.presentation
 
+import arrow.core.Either
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
@@ -8,7 +9,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.androidbox.stockmarket.data.repository.StockRepositoryImp
-import me.androidbox.stockmarket.domain.CheckResult
 
 class StockViewModel(
     private val stockRepositoryImp: StockRepositoryImp
@@ -55,23 +55,23 @@ class StockViewModel(
 
     private suspend fun fetchStockQuote(symbol: String): StockQuote? {
         return when(val quote = stockRepositoryImp.fetchStockQuote(symbol)) {
-            is CheckResult.Failure -> {
+            is Either.Left -> {
                 Logger.e {
-                    "Error ${quote.responseError?.message}"
+                    "Error ${quote.value}"
                 }
                 null
             }
 
-            is CheckResult.Success -> {
+            is Either.Right -> {
                 Logger.d {
-                    "${quote.data.currentPrice}"
+                    "${quote.value.currentPrice}"
                 }
 
                 StockQuote(
-                    current = quote.data.currentPrice,
-                    lowest = quote.data.lowPrice,
-                    highest = quote.data.highPrice,
-                    change = quote.data.percentChange
+                    current = quote.value.currentPrice,
+                    lowest = quote.value.lowPrice,
+                    highest = quote.value.highPrice,
+                    change = quote.value.percentChange
                 )
             }
         }
@@ -81,19 +81,19 @@ class StockViewModel(
         val listOfStock = symbols.map { symbol ->
             viewModelScope.async {
                 when (val stock = stockRepositoryImp.searchStock(symbol)) {
-                    is CheckResult.Success -> {
+                    is Either.Right -> {
                         /** There could be more than one stock item returned for each symbol,
                             so lets take the first one */
-                        val searchDto = stock.data.result.first()
+                        val searchDto = stock.value.result.first()
 
                         StockItem(
                             description = searchDto.description,
                             symbol = searchDto.symbol)
                     }
 
-                    is CheckResult.Failure -> {
+                    is Either.Left -> {
                         Logger.e {
-                            stock.responseError?.message ?: ""
+                            stock.value.name
                         }
                         null
                     }
@@ -104,4 +104,3 @@ class StockViewModel(
         return listOfStock.awaitAll()
     }
 }
-

@@ -46,6 +46,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.bundles.ktor.common)
             implementation(libs.kermit)
+            implementation("io.arrow-kt:arrow-core:2.2.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
