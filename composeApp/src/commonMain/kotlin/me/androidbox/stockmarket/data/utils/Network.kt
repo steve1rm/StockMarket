@@ -57,7 +57,11 @@ suspend inline fun <reified D> responseToResult(response: HttpResponse): CheckRe
             CheckResult.Failure(DataError.Network.PAYLOAD_TOO_LARGE, response.body<ErrorDto>())
         }
         429 -> {
-            CheckResult.Failure(DataError.Network.TOO_MANY_REQUESTS, response.body<ErrorDto>())
+            val error = ErrorDto(
+                status = response.status.value.toString(),
+                type = response.status.description,
+            )
+            CheckResult.Failure(DataError.Network.TOO_MANY_REQUESTS, error)
         }
         in 500..599 -> {
             CheckResult.Failure(DataError.Network.SERVER_ERROR, response.body<ErrorDto>())

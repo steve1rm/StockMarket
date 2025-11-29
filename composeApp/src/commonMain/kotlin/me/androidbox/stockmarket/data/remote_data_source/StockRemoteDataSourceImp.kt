@@ -35,13 +35,13 @@ class StockRemoteDataSourceImp(
         return safeResult
     }
 
-    suspend fun searchStock(): CheckResult<SearchResultDto, DataError.Network, ErrorDto> {
+    suspend fun searchStock(symbol: String): CheckResult<SearchResultDto, DataError.Network, ErrorDto> {
         val safeResult = safeApiRequest<SearchResultDto> {
             val response = httpClient
                 .get(Routes.SEARCH) {
                     url {
                         this.parameters.append("exchange", "US")
-                        this.parameters.append("q", "aapl")
+                        this.parameters.append("q", symbol)
                         this.parameters.append("token", "d4b6ljpr01qrv4asvurgd4b6ljpr01qrv4asvus0") // TODO add to local.properties
                     }
                 }

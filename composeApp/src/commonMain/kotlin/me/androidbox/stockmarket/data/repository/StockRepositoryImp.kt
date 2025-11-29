@@ -16,8 +16,8 @@ class StockRepositoryImp(
         return stockRemoteDataSourceImp.fetchStockSymbols()
     }
 
-    suspend fun searchStock(): CheckResult<SearchResultDto, DataError.Network, ErrorDto> {
-        return stockRemoteDataSourceImp.searchStock()
+    suspend fun searchStock(symbol: String): CheckResult<SearchResultDto, DataError.Network, ErrorDto> {
+        return stockRemoteDataSourceImp.searchStock(symbol)
     }
 
     suspend fun fetchStockQuote(symbol: String): CheckResult<QuoteDto, DataError, ErrorDto> {
