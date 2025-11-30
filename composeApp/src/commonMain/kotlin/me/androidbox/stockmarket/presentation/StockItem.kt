@@ -16,7 +16,7 @@ import stockmarket.composeapp.generated.resources.Res
 import stockmarket.composeapp.generated.resources.criclearrowup
 
 @Composable
-fun StockItem(
+fun StockItemView(
     symbol: String,
     currentPrice: Float,
     currentDate: String,
@@ -94,7 +94,7 @@ fun StockItem(
 @Composable
 fun PreviewStockItem() {
     MaterialTheme {
-        StockItem(
+        StockItemView(
             symbol = "GOOG",
             currentPrice = 178.54f,
             currentDate = "June 12, 2024",

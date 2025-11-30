@@ -36,16 +36,24 @@ class StockViewModel(
     private fun loadStock() {
         viewModelScope.launch {
             val stockItems = fetchStockSymbols(stockSymbols)
+                .mapNotNull {
+                    it
+                }
 
             Logger.d {
                 stockItems.toString()
             }
 
             val stock = stockItems
-                .filterNotNull()
                 .map { stockItem ->
                     fetchStockQuote(stockItem.symbol)
                 }
+
+            _state.update {
+                it.copy(
+                    stockItems = stockItems
+                )
+            }
 
             Logger.d {
                 stock.toString()
