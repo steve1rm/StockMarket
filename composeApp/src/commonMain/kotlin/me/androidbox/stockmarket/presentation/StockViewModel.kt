@@ -23,7 +23,7 @@ class StockViewModel(
     val state = _state.asStateFlow()
         .onStart {
             if(!hasLoaded) {
-                loadStock()
+                loadAllStockItems()
                 hasLoaded = true
             }
         }
@@ -33,39 +33,27 @@ class StockViewModel(
             started = SharingStarted.WhileSubscribed(5_000)
         )
 
-    private fun loadStock() {
+    private fun loadAllStockItems() {
         viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    isLoading = true
-                )
-            }
-            val stockItems = fetchStockSymbols(stockSymbols)
-                .mapNotNull {
-                    it
-                }
-
-            Logger.d {
-                stockItems.toString()
-            }
-
-            val stock = stockItems
+            _state.update { it.copy(isLoading = true) }
+ 
+            val stockSymbols = fetchStockSymbols(this@StockViewModel.stockSymbols).filterNotNull()
+ 
+            val stockItems = stockSymbols
                 .map { stockItem ->
-                    fetchStockQuote(stockItem.symbol)
+                    async {
+                        fetchStockQuote(stockItem.symbol)?.let { stockQuote ->
+                            stockItem.copy(quote = stockQuote)
+                        }
+                    }
                 }
 
             _state.update {
-                it.copy(
-                    stockItems = stockItems,
-                    isLoading = false
-                )
-            }
-
-            Logger.d {
-                stock.toString()
+                it.copy(stockItems = stockItems.awaitAll().filterNotNull(), isLoading = false)
             }
         }
     }
+
 
     private suspend fun fetchStockQuote(symbol: String): StockQuote? {
         return when(val quote = stockRepositoryImp.fetchStockQuote(symbol)) {
