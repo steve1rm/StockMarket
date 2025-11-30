@@ -35,11 +35,15 @@ class StockViewModel(
 
     private fun loadAllStockItems() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
- 
-            val stockSymbols = fetchStockSymbols(this@StockViewModel.stockSymbols).filterNotNull()
- 
-            val stockItems = stockSymbols
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
+            val stockItems = fetchStockSymbols(stockSymbols)
+
+            val allStockItems = stockItems
+                .filterNotNull()
                 .map { stockItem ->
                     async {
                         fetchStockQuote(stockItem.symbol)?.let { stockQuote ->
@@ -49,11 +53,13 @@ class StockViewModel(
                 }
 
             _state.update {
-                it.copy(stockItems = stockItems.awaitAll().filterNotNull(), isLoading = false)
+                StockState(
+                    stockItems = allStockItems.awaitAll().filterNotNull(),
+                    isLoading = false
+                )
             }
         }
     }
-
 
     private suspend fun fetchStockQuote(symbol: String): StockQuote? {
         return when(val quote = stockRepositoryImp.fetchStockQuote(symbol)) {
