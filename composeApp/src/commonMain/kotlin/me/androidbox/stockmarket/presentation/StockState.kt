@@ -1,7 +1,8 @@
 package me.androidbox.stockmarket.presentation
 
 data class StockState(
-    val stockItems: List<StockItem> = emptyList()
+    val stockItems: List<StockItem> = emptyList(),
+    val isLoading: Boolean = false
 )
 
 data class StockItem(

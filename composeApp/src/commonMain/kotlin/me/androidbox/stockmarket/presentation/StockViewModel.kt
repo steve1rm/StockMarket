@@ -35,6 +35,11 @@ class StockViewModel(
 
     private fun loadStock() {
         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
             val stockItems = fetchStockSymbols(stockSymbols)
                 .mapNotNull {
                     it
@@ -51,7 +56,8 @@ class StockViewModel(
 
             _state.update {
                 it.copy(
-                    stockItems = stockItems
+                    stockItems = stockItems,
+                    isLoading = false
                 )
             }
 
