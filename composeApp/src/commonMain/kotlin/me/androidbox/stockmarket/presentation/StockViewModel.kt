@@ -54,7 +54,8 @@ class StockViewModel(
 
             _state.update {
                 StockState(
-                    stockItems = allStockItems.awaitAll().filterNotNull(),
+                    stockItems = allStockItems.awaitAll()
+                        .filterNotNull(),
                     isLoading = false
                 )
             }
